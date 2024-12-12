@@ -47,7 +47,7 @@ function setup() {
 	rect(expDim, 0, width, graphH);
 	graphXmin = expDim+50, graphXmax = width-50;
 	graphYmin = 0.5*graphH, graphYmax = 10;
-	
+
 	rotSlider = createSlider(0, 2*Math.PI, 0, 0);
 	rotSlider.position(10, 10);
 	rotSlider.style("width", `${expDim-25}px`);
@@ -70,59 +70,26 @@ let finalAngle;
 function draw() {
 	stroke(255);
 	fill(0);
-	
+
 	rect(0, 0, expDim, expDim);
 	// ellipse(expDim/2, expDim/2, expDim, expDim)
-	
-	// run simulation here
+
+	//////////////////// run simulation here ////////////////////
 	shape.show();
 	// ray.show();
 	// ray.lookAt(mouseX, mouseY);
-	res = ray.cast([expBound, shape]);
-	closest = res[0], hitLine = res[1];
 
-	if (closest) {
-		line(ray.pos.x, ray.pos.y, closest.x, closest.y);
-		ellipse(closest.x, closest.y, 5, 5);
-		n = 0;
-		// check if closest lies on boundary
-		while (!(closest.x == 0 || closest.x == expDim || 
-				 closest.y == 0 || closest.y == expDim)
-			&& n < maxReflect)
-		{
-			let incident = ray.angleBetween(hitLine);
-			let alpha = ray.dir.heading();
-			let beta = atan(ray.gradient(hitLine));
+	ray.simulate([expBound, shape], maxReflect);
 
-			// TODO: this part is sketchy - probably why concave doesn't work
-			if (beta > 0) {
-				ray.dir.setHeading(-incident + beta + Math.PI);
-			}
-			else {
-				ray.dir.setHeading(incident + beta);
-			}
-			// delta because of javascript fuckery
-			let delta = p5.Vector.sub(closest, ray.pos).normalize();
-			ray.pos.set(closest.x-delta.x, closest.y-delta.y);
-			
-			res = ray.cast([expBound, shape]);
-			closest = res[0], hitLine = res[1];
-			if (closest) {
-				line(ray.pos.x, ray.pos.y, closest.x, closest.y);
-				ellipse(closest.x, closest.y, 5, 5);
-				n++;
-			}
-		}
-	}
 	finalAngle = Math.PI/2 - ray.dir.heading();
 	if (finalAngle > Math.PI) finalAngle -= 2*Math.PI;
-	if (finalAngle < -Math.PI) finalAngle += 2*Math.PI; 
+	if (finalAngle < -Math.PI) finalAngle += 2*Math.PI;
 	// console.log(finalAngle*180/PI);
-	
+
 	ray.pos.set(expDim/2, height);
 	ray.dir.set(0, -1); ray.dir.normalize();
-	
-	// draw graph here
+
+	//////////////////// draw graph here ////////////////////
 	drawGraph();
 	stroke(255); fill(0);
 	if (n < maxReflect)
@@ -130,17 +97,13 @@ function draw() {
 			lerp(graphXmin, graphXmax, rotSlider.value() / (2*(Math.PI))),
 			lerp(graphYmin, graphYmax, finalAngle / PI)
 		);
-		
+
 	rect(expDim, graphH, width, height);
-	// sliders here
+	//////////////////// sliders here ////////////////////
 	if (shape.angle != rotSlider.value()) {
 		shape.rotate(rotSlider.value() - shape.angle);
 		shape.angle = rotSlider.value();
 	}
-}
-
-function drawArrow() {
-	
 }
 
 function drawGraph() {
@@ -168,13 +131,13 @@ function drawGraph() {
 async function redrawShape() {
 	noLoop();
 	await sleep(50);
-	
+
 	stroke(255); fill(0);
 	rect(0, 0, expDim, expDim);
 	rotSlider.value(0);
 	rect(expDim, 0, width, graphH);
 	drawGraph();
-	
+
 	let lines = await getLines();
 	shape = new Shape(lines, 0)
 	loop();
@@ -185,7 +148,7 @@ async function getLines() {
 	return new Promise(async (resolve, reject) => {
 		let p0 = await getPoint();
 		let p = p0.copy(), q = createVector(width, height);
-		
+
 		while (p0.dist(q) > 8) {
 			q = await getPoint();
 			lines.push([p.x, p.y, q.x, q.y].map(j => j-expDim/2));
@@ -194,7 +157,7 @@ async function getLines() {
 		}
 		let last = lines[lines.length-1];
 		last[2] = p0.x-expDim/2, last[3] = p0.y-expDim/2;
-		
+
 		resolve(lines);
 	})
 }
