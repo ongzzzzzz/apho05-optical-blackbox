@@ -79,12 +79,13 @@ function draw() {
 	// ray.show();
 	// ray.lookAt(mouseX, mouseY);
 
-	ray.simulate([expBound, shape], maxReflect);
+	let finalPos = ray.simulate([expBound, shape], maxReflect);
 
-	finalAngle = Math.PI/2 - ray.dir.heading();
-	if (finalAngle > Math.PI) finalAngle -= 2*Math.PI;
-	if (finalAngle < -Math.PI) finalAngle += 2*Math.PI;
-	// console.log(finalAngle*180/PI);
+	finalAngle = atan2(finalPos[1] - expDim/2, finalPos[0] - expDim/2);
+	finalAngle = 90 - degrees(finalAngle);
+	if (finalAngle > 180) finalAngle -= 360;
+	if (finalAngle < -180) finalAngle += 360;
+	// console.log(finalAngle);
 
 	ray.pos.set(expDim/2, height);
 	ray.dir.set(0, -1); ray.dir.normalize();

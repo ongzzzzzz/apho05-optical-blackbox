@@ -32,8 +32,6 @@ class Ray {
 		this.dir = createVector(dirx, diry).normalize()
 	}
 
-
-
 	lookAt(x, y) {
 		this.dir.x = x - this.pos.x;
 		this.dir.y = y - this.pos.y;
@@ -151,6 +149,7 @@ class Ray {
 					n++;
 				}
 			}
+			return [closest.x, closest.y];
 		}
 	}
 }
