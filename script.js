@@ -96,7 +96,7 @@ function draw() {
 	if (n < maxReflect)
 		point(
 			lerp(graphXmin, graphXmax, rotSlider.value() / (2*(Math.PI))),
-			lerp(graphYmin, graphYmax, finalAngle)
+			lerp(graphYmin, graphYmax, finalAngle/180)
 		);
 
 	rect(expDim, graphH, width, height);
